@@ -6,14 +6,7 @@
 
 ## 🌿 내용 정리
 
-### 1. Introduction
-
-프로젝트 셋팅
-
-```bash
-nest new <project-name>
-npm i @nestjs/typeorm @nestjs/config typeorm mysql2
-```
+### 1. [Setting](./docs/1.Setting.md)
 
 ### 2. Repositories
 
@@ -26,7 +19,3 @@ npm i @nestjs/typeorm @nestjs/config typeorm mysql2
 ### 6. Migrations
 
 ### 7. Testing
-
-## 참고
-
-- [NestJS + TypeORM Tutorial | Repositories, Relations, Migrations & More](https://www.youtube.com/watch?v=9MGKKJTwicM)
