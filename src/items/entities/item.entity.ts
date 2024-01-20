@@ -1,19 +1,26 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Listing } from "./listing.entity";
+import { AbstractEntity } from "src/database/abstract.entity";
+import { Comment } from "./comment.entity";
+import { Tag } from "./tag.entity";
 
 @Entity()
-export class Item {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Item extends AbstractEntity<Item> {
   @Column({ comment: '이름' })
   name: string;
 
   @Column({ default: true, comment: '공개 여부'})
   public: boolean
 
-  constructor(item: Partial<Item>){
-    Object.assign(this, item);
-    // Read: 새 항목을 만들기 쉽다.
-    // name, public 속성중 일부가 있는 객체를 전달하면 생상자가 자동으로 할당 하기 때문에 추 후 업데이트할때 속성을 계속 업데이트할 필요가 없어진다.
-  }
+  @OneToOne(() => Listing, { cascade: true }) // 1:1: 하나의 아이템에 대한 설명과 랭킹
+  @JoinColumn()
+  listing: Listing
+
+  @OneToMany(() => Comment, (comment) => comment.item, { cascade: true }) // 1:N: 하나의 아이템에 여러개의 댓글
+  @JoinColumn()
+  comments: Comment[] // 여러개의 댓글이 때문에 배열로
+
+  @ManyToMany(() => Tag, { cascade: true })
+  @JoinTable()
+  tags: Tag[];
 }

@@ -4,6 +4,9 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { EntityManager, Repository } from 'typeorm';
 import { Item } from './entities/item.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Listing } from './entities/listing.entity';
+import { Comment } from './entities/comment.entity';
+import { Tag } from './entities/tag.entity';
 
 @Injectable()
 export class ItemsService {
@@ -14,7 +17,18 @@ export class ItemsService {
     ){}
 
   async create(createItemDto: CreateItemDto) {
-    const item = new Item(createItemDto); // item 엔테디를 인스턴스화 하고, DTO 속성이 일치하므로 생성자로 직접 전달 할 수 있다.
+    const listing = new Listing({
+      ...createItemDto.listing,
+      rating: 0,
+    })
+    const tags = createItemDto.tags.map((createTagDto) => new Tag(createTagDto));
+    const item = new Item({
+      ...createItemDto,
+      listing,
+      tags,
+      comments: [] // 저금 아이템을 생성할때는 댓글이 없다.
+    }); // item 엔테디를 인스턴스화 하고, DTO 속성이 일치하므로 생성자로 직접 전달 할 수 있다.
+
     await this.entityManager.save(item)
   }
 
@@ -23,13 +37,22 @@ export class ItemsService {
   }
 
   async findOne(id: number) {
-    return await this.itemRepository.findOneBy({ id });
+    return await this.itemRepository.findOne({ 
+      where: {id},
+      relations: { 
+        listing: true,
+        comments: true,
+        tags: true
+      }
+     });
   }
 
   async update(id: number, updateItemDto: UpdateItemDto) {
     const item = await this.itemRepository.findOneBy({ id });
-    item.public = updateItemDto.public; // TODO: public 컬럼만 업데이트
-    this.entityManager.save(item);
+    item.public = updateItemDto.public; //public 컬럼만 업데이트
+    const comments = updateItemDto.comments.map((CreateCommentDto) => new Comment(CreateCommentDto));
+    item.comments = comments; // 전달 받은 item들을 comment를 통해 인스턴스화 함
+    await this.entityManager.save(item);
   }
 
   async remove(id: number) {
