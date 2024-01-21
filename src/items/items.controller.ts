@@ -27,6 +27,11 @@ export class ItemsController {
     return this.itemsService.update(+id, updateItemDto);
   }
 
+  @Patch('t/:id')
+  updateTransaction(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
+    return this.itemsService.updateTransaction(+id, updateItemDto);
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.itemsService.remove(+id);
